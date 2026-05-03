@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowAI - Smart Financial Management for MSMEs</title>
+    <!-- Tailwind CSS via CDN for standalone HTML implementation -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Auth Guard -->
+    <script>
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            window.location.href = localStorage.getItem('onboardingCompleted') === 'true' ? 'dashboard.html' : 'onboarding.html';
+        }
+    </script>
+
+    <!-- Tailwind Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1E3A8A',    // Deep blue
+                        secondary: '#3B82F6',  // Blue
+                        background: '#FFFFFF', // White
+                        section: '#F9FAFB',    // Light section bg
+                        text: '#111827',       // Dark gray text
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'card': '0 4px 20px -2px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+        }
+
+        /* Form Inputs */
+        .input-field {
+            @apply w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary transition-all bg-gray-50 focus:bg-white text-text placeholder-gray-400;
+        }
+
+        .label-text {
+            @apply block text-sm font-medium text-gray-700 mb-1.5;
+        }
+
+        .error-text {
+            @apply text-xs text-red-500 mt-1.5 hidden;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            width: 18px;
+            height: 18px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Password Strength */
+        .password-strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        .toggle-btn {
+            @apply absolute right-3 top-[38px] text-gray-400 hover:text-gray-600 cursor-pointer transition-colors;
+        }
+
+        /* Abstract Graphic Animation */
+        .bar-grow {
+            animation: growUp 1.5s ease-out forwards;
+            transform-origin: bottom;
+        }
+
+        @keyframes growUp {
+            from {
+                transform: scaleY(0.2);
+                opacity: 0;
+            }
+
+            to {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+
+    <!-- Background Accents -->
+    <div class="fixed top-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-blue-100/40 blur-3xl -z-10"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-secondary/10 blur-3xl -z-10"></div>
+
+    <!-- Main Container -->
+    <div
+        class="w-full max-w-[1100px] bg-white rounded-2xl shadow-soft overflow-hidden flex flex-col lg:flex-row relative z-10 border border-gray-100">
+
+        <!-- LEFT PANEL (Branding) -->
+        <div
+            class="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-primary to-[#0f245c] p-10 xl:p-14 text-white flex-col justify-between relative overflow-hidden">
+            <!-- Decorative Glows -->
+            <div class="absolute -top-24 -left-24 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 bg-secondary/20 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 mb-16">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-white text-primary flex items-center justify-center font-bold text-2xl shadow-lg">
+                        F</div>
+                    <span class="text-2xl font-bold tracking-tight">FlowAI</span>
+                </div>
+
+                <!-- Copy -->
+                <h1 class="text-[2.5rem] leading-[1.15] font-bold mb-6 tracking-tight">Smart Financial Management for
+                    MSMEs</h1>
+                <p class="text-blue-100/90 text-lg leading-relaxed mb-12 max-w-[90%]">
+                    Simplify your cash flow. Track revenue, manage expenses, and generate professional insights
+                    instantly from one secure dashboard.
+                </p>
+
+                <!-- Abstract Finance Graphic -->
+                <div
+                    class="w-full h-44 bg-white/5 rounded-xl border border-white/10 p-5 flex flex-col justify-between backdrop-blur-md shadow-card">
+                    <div class="text-xs text-white/70 font-medium tracking-wider uppercase mb-2">Monthly Revenue</div>
+                    <div class="flex justify-between items-end h-full gap-2 relative">
+                        <!-- Horizontal Grid Lines -->
+                        <div class="absolute w-full h-[1px] bg-white/10 top-1/4"></div>
+                        <div class="absolute w-full h-[1px] bg-white/10 top-2/4"></div>
+                        <div class="absolute w-full h-[1px] bg-white/10 top-3/4"></div>
+
+                        <!-- Bars -->
+                        <div class="w-[14%] bg-white/20 rounded-t h-[40%] hover:bg-white/40 transition-colors bar-grow"
+                            style="animation-delay: 0.1s"></div>
+                        <div class="w-[14%] bg-white/30 rounded-t h-[55%] hover:bg-white/50 transition-colors bar-grow"
+                            style="animation-delay: 0.2s"></div>
+                        <div class="w-[14%] bg-white/40 rounded-t h-[70%] hover:bg-white/60 transition-colors bar-grow"
+                            style="animation-delay: 0.3s"></div>
+                        <div class="w-[14%] bg-secondary rounded-t h-[95%] hover:bg-secondary/80 transition-colors relative shadow-[0_0_15px_rgba(59,130,246,0.5)] bar-grow"
+                            style="animation-delay: 0.4s">
+                            <div
+                                class="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-primary text-[11px] font-bold py-1 px-2 rounded shadow-lg whitespace-nowrap">
+                                +42% Growth</div>
+                        </div>
+                        <div class="w-[14%] bg-white/20 rounded-t h-[60%] hover:bg-white/40 transition-colors bar-grow"
+                            style="animation-delay: 0.5s"></div>
+                        <div class="w-[14%] bg-white/10 rounded-t h-[75%] hover:bg-white/30 transition-colors bar-grow"
+                            style="animation-delay: 0.6s"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10 mt-12 text-sm text-white/50 font-medium">
+                &copy; 2026 FlowAI Technologies Inc.
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL (Forms) -->
+        <div class="w-full lg:w-[55%] p-8 sm:p-12 xl:p-16 relative bg-white">
+
+            <!-- Mobile Logo -->
+            <div class="flex lg:hidden items-center gap-2 mb-8 justify-center">
+                <div
+                    class="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-2xl shadow-lg">
+                    F</div>
+                <span class="text-2xl font-bold text-primary tracking-tight">FlowAI</span>
+            </div>
+
+            <!-- Form Container (fixed height to prevent jumping during transitions) -->
+            <div class="max-w-[420px] mx-auto w-full relative min-h-[580px]">
+
+                <!-- LOGIN VIEW -->
+                <div id="login-view"
+                    class="absolute inset-0 transition-all duration-400 ease-in-out transform opacity-100 translate-x-0 z-10">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-text mb-2 tracking-tight">Welcome Back</h2>
+                        <p class="text-gray-500 text-sm">Enter your credentials to access your account.</p>
+                    </div>
+
+                    <form id="login-form" class="space-y-5" onsubmit="handleLogin(event)">
+                        <div class="relative">
+                            <label for="login-email" class="label-text">Email Address</label>
+                            <input type="email" id="login-email" class="input-field" placeholder="founder@company.com"
+                                required>
+                            <p id="login-email-error" class="error-text">Please enter a valid email address.</p>
+                        </div>
+
+                        <div class="relative">
+                            <label for="login-password" class="label-text">Password</label>
+                            <input type="password" id="login-password" class="input-field pr-10" placeholder="••••••••"
+                                required>
+                            <i class="fas fa-eye toggle-btn" onclick="togglePassword('login-password', this)"></i>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-3 mb-6">
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="checkbox"
+                                    class="w-4 h-4 text-secondary rounded border-gray-300 focus:ring-secondary/50 transition-colors">
+                                <span class="text-sm text-gray-600 group-hover:text-text transition-colors">Remember
+                                    me</span>
+                            </label>
+                            <a href="#"
+                                class="text-sm font-medium text-secondary hover:text-primary transition-colors">Forgot
+                                password?</a>
+                        </div>
+
+                        <button type="submit" id="login-btn"
+                            class="w-full bg-primary hover:bg-[#152c6b] text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex justify-center items-center mt-2 group relative overflow-hidden">
+                            <span
+                                class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                            <span id="login-spinner" class="spinner hidden relative z-10"></span>
+                            <span id="login-btn-text" class="relative z-10">Login</span>
+                        </button>
+                    </form>
+
+                    <div class="mt-8 text-center text-sm text-gray-600">
+                        Don't have an account?
+                        <button type="button" onclick="switchView('signup')"
+                            class="font-semibold text-secondary hover:text-primary transition-colors ml-1 focus:outline-none">Create
+                            Account</button>
+                    </div>
+                </div>
+
+                <!-- SIGNUP VIEW -->
+                <div id="signup-view"
+                    class="absolute inset-0 transition-all duration-400 ease-in-out transform opacity-0 translate-x-8 pointer-events-none z-0">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-text mb-2 tracking-tight">Create Account</h2>
+                        <p class="text-gray-500 text-sm">Start managing your business finances today.</p>
+                    </div>
+
+                    <form id="signup-form" class="space-y-4" onsubmit="handleSignup(event)">
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div class="relative">
+                                <label for="signup-business" class="label-text">Business Name</label>
+                                <input type="text" id="signup-business" class="input-field" placeholder="Acme Corp"
+                                    required>
+                            </div>
+                            <div class="relative">
+                                <label for="signup-email" class="label-text">Email Address</label>
+                                <input type="email" id="signup-email" class="input-field" placeholder="you@company.com"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="relative">
+                                <label for="signup-type" class="label-text">Business Type</label>
+                                <select id="signup-type" class="input-field bg-white appearance-none cursor-pointer"
+                                    required>
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="services">Services</option>
+                                    <option value="manufacturing">Manufacturing</option>
+                                    <option value="tech">Technology</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-6 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <label for="signup-revenue" class="label-text">Monthly Rev (Est)</label>
+                                <select id="signup-revenue" class="input-field bg-white appearance-none cursor-pointer"
+                                    required>
+                                    <option value="" disabled selected>Select Range</option>
+                                    <option value="<1L">&lt; ₹1L</option>
+                                    <option value="1L-5L">₹1L - ₹5L</option>
+                                    <option value="5L-10L">₹5L - ₹10L</option>
+                                    <option value=">10L">&gt; ₹10L</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-6 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <label for="signup-cash" class="label-text flex justify-between">
+                                Cash in Bank
+                                <span class="text-gray-400 font-normal text-xs mt-0.5">(Recommended)</span>
+                            </label>
+                            <div class="relative flex">
+                                <select id="signup-currency"
+                                    class="input-field !rounded-r-none !border-r-0 !w-24 bg-gray-50 focus:bg-white appearance-none text-center cursor-pointer font-medium text-gray-600">
+                                    <option value="INR">INR ₹</option>
+                                    <option value="USD">USD $</option>
+                                </select>
+                                <input type="number" id="signup-cash" class="input-field !rounded-l-none"
+                                    placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="relative">
+                                <label for="signup-password" class="label-text">Password</label>
+                                <input type="password" id="signup-password" class="input-field pr-10"
+                                    placeholder="••••••••" required oninput="checkPasswordStrength(this.value)">
+                                <i class="fas fa-eye toggle-btn" onclick="togglePassword('signup-password', this)"></i>
+
+                                <div class="w-full bg-gray-200 h-1 mt-2 rounded-full overflow-hidden">
+                                    <div id="strength-bar" class="password-strength-bar bg-gray-300"></div>
+                                </div>
+                                <p id="strength-text" class="text-[10px] text-gray-500 mt-1 font-medium">Strength</p>
+                            </div>
+
+                            <div class="relative">
+                                <label for="signup-confirm" class="label-text">Confirm Password</label>
+                                <input type="password" id="signup-confirm" class="input-field pr-10"
+                                    placeholder="••••••••" required oninput="checkMatch()">
+                                <i class="fas fa-eye toggle-btn" onclick="togglePassword('signup-confirm', this)"></i>
+                                <p id="match-text" class="text-[10px] text-red-500 mt-1 hidden font-medium">Passwords do
+                                    not match</p>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="signup-btn"
+                            class="w-full bg-primary hover:bg-[#152c6b] text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex justify-center items-center mt-6 group relative overflow-hidden">
+                            <span
+                                class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                            <span id="signup-spinner" class="spinner hidden relative z-10"></span>
+                            <span id="signup-btn-text" class="relative z-10">Create Account</span>
+                        </button>
+                    </form>
+
+                    <div class="mt-6 text-center text-sm text-gray-600">
+                        Already have an account?
+                        <button type="button" onclick="switchView('login')"
+                            class="font-semibold text-secondary hover:text-primary transition-colors ml-1 focus:outline-none">Login</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimal JavaScript Logic -->
+    <script>
+        // --- View Switching ---
+        function switchView(view) {
+            const loginView = document.getElementById('login-view');
+            const signupView = document.getElementById('signup-view');
+
+            if (view === 'signup') {
+                loginView.style.opacity = '0';
+                loginView.style.transform = 'translateX(-20px)';
+                loginView.style.pointerEvents = 'none';
+                loginView.style.zIndex = '0';
+
+                setTimeout(() => {
+                    signupView.style.opacity = '1';
+                    signupView.style.transform = 'translateX(0)';
+                    signupView.style.pointerEvents = 'auto';
+                    signupView.style.zIndex = '10';
+                }, 200);
+            } else {
+                signupView.style.opacity = '0';
+                signupView.style.transform = 'translateX(20px)';
+                signupView.style.pointerEvents = 'none';
+                signupView.style.zIndex = '0';
+
+                setTimeout(() => {
+                    loginView.style.opacity = '1';
+                    loginView.style.transform = 'translateX(0)';
+                    loginView.style.pointerEvents = 'auto';
+                    loginView.style.zIndex = '10';
+                }, 200);
+            }
+        }
+
+        // --- Password Toggle ---
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                icon.classList.add('text-secondary');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.remove('text-secondary');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // --- Password Strength ---
+        function checkPasswordStrength(password) {
+            const bar = document.getElementById('strength-bar');
+            const text = document.getElementById('strength-text');
+
+            let strength = 0;
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]+/)) strength += 25;
+            if (password.match(/[A-Z]+/)) strength += 25;
+            if (password.match(/[0-9!@#$%^&*]+/)) strength += 25;
+
+            bar.style.width = strength + '%';
+
+            if (password.length === 0) {
+                bar.className = 'password-strength-bar bg-gray-300';
+                text.textContent = 'Strength';
+                text.className = 'text-[10px] text-gray-500 mt-1 font-medium';
+            } else if (strength <= 25) {
+                bar.className = 'password-strength-bar bg-red-400';
+                text.textContent = 'Weak';
+                text.className = 'text-[10px] text-red-500 mt-1 font-medium';
+            } else if (strength <= 50) {
+                bar.className = 'password-strength-bar bg-yellow-400';
+                text.textContent = 'Fair';
+                text.className = 'text-[10px] text-yellow-500 mt-1 font-medium';
+            } else if (strength <= 75) {
+                bar.className = 'password-strength-bar bg-secondary';
+                text.textContent = 'Good';
+                text.className = 'text-[10px] text-secondary mt-1 font-medium';
+            } else {
+                bar.className = 'password-strength-bar bg-green-500';
+                text.textContent = 'Strong';
+                text.className = 'text-[10px] text-green-600 mt-1 font-medium';
+            }
+
+            checkMatch(); // Re-check match when password changes
+        }
+
+        function checkMatch() {
+            const pass = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            const matchText = document.getElementById('match-text');
+            const confirmInput = document.getElementById('signup-confirm');
+
+            if (confirm.length > 0 && pass !== confirm) {
+                matchText.classList.remove('hidden');
+                confirmInput.classList.add('border-red-400', 'focus:border-red-400', 'focus:ring-red-200');
+            } else {
+                matchText.classList.add('hidden');
+                confirmInput.classList.remove('border-red-400', 'focus:border-red-400', 'focus:ring-red-200');
+            }
+        }
+
+        // --- Form Handling & Validation ---
+        function validateEmail(email) {
+            return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('login-email');
+            const errorText = document.getElementById('login-email-error');
+            const btn = document.getElementById('login-btn');
+            const spinner = document.getElementById('login-spinner');
+            const btnText = document.getElementById('login-btn-text');
+
+            if (!validateEmail(emailInput.value)) {
+                emailInput.classList.add('border-red-400', 'focus:border-red-400', 'focus:ring-red-200');
+                errorText.classList.remove('hidden');
+                return;
+            } else {
+                emailInput.classList.remove('border-red-400', 'focus:border-red-400', 'focus:ring-red-200');
+                errorText.classList.add('hidden');
+            }
+
+            // UI Loading State
+            btn.disabled = true;
+            btn.classList.add('opacity-90', 'cursor-not-allowed');
+            spinner.classList.remove('hidden');
+            btnText.textContent = 'Authenticating...';
+
+            // Simulate API Call
+            setTimeout(() => {
+                btn.classList.replace('bg-primary', 'bg-emerald-500');
+                btn.classList.replace('hover:bg-[#152c6b]', 'hover:bg-emerald-600');
+                spinner.classList.add('hidden');
+                btnText.textContent = 'Success!';
+
+                // Update State and Redirect
+                setTimeout(() => {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', emailInput.value);
+                    
+                    const onboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
+                    if (onboardingCompleted) {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        window.location.href = 'onboarding.html';
+                    }
+                }, 800);
+            }, 1500);
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+
+            const pass = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+
+            if (pass !== confirm) {
+                checkMatch();
+                return; // Stop if passwords don't match
+            }
+
+            const btn = document.getElementById('signup-btn');
+            const spinner = document.getElementById('signup-spinner');
+            const btnText = document.getElementById('signup-btn-text');
+
+            // UI Loading State
+            btn.disabled = true;
+            btn.classList.add('opacity-90', 'cursor-not-allowed');
+            spinner.classList.remove('hidden');
+            btnText.textContent = 'Setting up workspace...';
+
+            // Simulate API Call
+            setTimeout(() => {
+                btn.classList.replace('bg-primary', 'bg-emerald-500');
+                btn.classList.replace('hover:bg-[#152c6b]', 'hover:bg-emerald-600');
+                spinner.classList.add('hidden');
+                btnText.textContent = 'Account Created!';
+
+                // Update State and Redirect
+                setTimeout(() => {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', document.getElementById('signup-email').value);
+                    localStorage.setItem('onboardingCompleted', 'false');
+                    
+                    window.location.href = 'onboarding.html';
+                }, 800);
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>

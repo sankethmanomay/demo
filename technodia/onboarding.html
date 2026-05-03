@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowAI - Welcome</title>
+    
+    <!-- Auth Guard -->
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'auth.html';
+        } else if (localStorage.getItem('onboardingCompleted') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1E3A8A',    // Deep blue
+                        secondary: '#3B82F6',  // Blue
+                        background: '#FAFAFA', // Off-white
+                        card: '#FFFFFF',       // White
+                        text: '#111827',       // Dark gray text
+                        muted: '#6B7280',      // Muted text
+                    },
+                    boxShadow: {
+                        'premium': '0 20px 40px -15px rgba(0,0,0,0.05)',
+                        'card-hover': '0 10px 25px -5px rgba(59, 130, 246, 0.1)',
+                    },
+                    borderRadius: {
+                        'xl': '12px',
+                        '2xl': '16px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAFA;
+            color: #111827;
+        }
+
+        /* Large Clean Inputs */
+        .input-huge {
+            @apply w-full text-3xl sm:text-4xl font-medium text-text bg-transparent border-b-2 border-gray-200 py-4 focus:outline-none focus:border-secondary transition-colors placeholder-gray-300;
+        }
+
+        /* Animations */
+        .step-container {
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .step-hidden-right {
+            opacity: 0;
+            transform: translateX(40px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .step-hidden-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .step-active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            visibility: visible;
+            position: relative;
+        }
+
+        /* Selectable Cards */
+        .selectable-card {
+            @apply flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-100 rounded-xl cursor-pointer transition-all hover:border-blue-200 hover:shadow-card-hover hover:-translate-y-1;
+        }
+        
+        .selectable-card.selected {
+            @apply border-secondary bg-blue-50/50 shadow-card-hover ring-1 ring-secondary;
+        }
+
+        .selectable-pill {
+            @apply px-6 py-3 bg-white border border-gray-200 rounded-full font-medium text-gray-600 cursor-pointer transition-all hover:border-gray-300 hover:bg-gray-50;
+        }
+
+        .selectable-pill.selected {
+            @apply bg-primary text-white border-primary shadow-md;
+        }
+
+        /* Custom scrollbar for tags */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- Background Accents -->
+    <div class="fixed top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-50/60 blur-3xl -z-10"></div>
+    <div class="fixed bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-50/60 blur-3xl -z-10"></div>
+
+    <!-- Header / Progress -->
+    <header class="w-full max-w-3xl mx-auto pt-8 px-6 sm:px-10 z-20 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center font-bold text-lg shadow-sm">F</div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-medium text-muted">Step <span id="current-step-display">1</span> of 5</span>
+            <div class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-secondary transition-all duration-500 ease-out" style="width: 20%;"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col justify-center items-center w-full px-4 sm:px-6 py-12 relative z-10">
+        
+        <div class="w-full max-w-2xl mx-auto relative">
+
+            <!-- STEP 1: Business Name -->
+            <div id="step-1" class="step-container step-active">
+                <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4 tracking-tight">Welcome to FlowAI.</h1>
+                <p class="text-xl text-muted mb-12">To get started, what's your business called?</p>
+                
+                <div class="mb-12">
+                    <input type="text" id="business-name" class="input-huge" placeholder="e.g. Acme Corp" autofocus oninput="validateCurrentStep()">
+                </div>
+            </div>
+
+            <!-- STEP 2: Business Type -->
+            <div id="step-2" class="step-container step-hidden-right">
+                <h2 class="text-3xl sm:text-4xl font-bold text-text mb-3 tracking-tight">What industry are you in?</h2>
+                <p class="text-lg text-muted mb-10">This helps us tailor your financial categories.</p>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="selectable-card" onclick="selectType(this, 'Retail')">
+                        <i class="fas fa-store text-3xl text-secondary mb-3"></i>
+                        <span class="font-medium text-text">Retail</span>
+                    </div>
+                    <div class="selectable-card" onclick="selectType(this, 'Services')">
+                        <i class="fas fa-briefcase text-3xl text-secondary mb-3"></i>
+                        <span class="font-medium text-text">Services</span>
+                    </div>
+                    <div class="selectable-card" onclick="selectType(this, 'Manufacturing')">
+                        <i class="fas fa-industry text-3xl text-secondary mb-3"></i>
+                        <span class="font-medium text-text">Manufacturing</span>
+                    </div>
+                    <div class="selectable-card" onclick="selectType(this, 'Technology')">
+                        <i class="fas fa-laptop-code text-3xl text-secondary mb-3"></i>
+                        <span class="font-medium text-text">Technology</span>
+                    </div>
+                    <div class="selectable-card" onclick="selectType(this, 'Food & Bev')">
+                        <i class="fas fa-utensils text-3xl text-secondary mb-3"></i>
+                        <span class="font-medium text-text">Food & Bev</span>
+                    </div>
+                    <div class="selectable-card" onclick="selectType(this, 'Other')">
+                        <i class="fas fa-shapes text-3xl text-secondary mb-3"></i>
+                        <span class="font-medium text-text">Other</span>
+                    </div>
+                </div>
+                <input type="hidden" id="business-type" required>
+            </div>
+
+            <!-- STEP 3: Financial Overview -->
+            <div id="step-3" class="step-container step-hidden-right">
+                <h2 class="text-3xl sm:text-4xl font-bold text-text mb-3 tracking-tight">Let's set your starting balances.</h2>
+                <p class="text-lg text-muted mb-10">How much cash is currently in your business bank account?</p>
+                
+                <div class="mb-12 bg-white p-8 rounded-2xl shadow-premium border border-gray-100">
+                    <div class="relative flex items-end">
+                        <span class="text-4xl font-medium text-gray-400 mb-4 mr-2">₹</span>
+                        <input type="number" id="opening-balance" class="input-huge !border-0 !p-0 !bg-transparent" placeholder="0" min="0" oninput="validateCurrentStep()">
+                    </div>
+                    <div class="h-[2px] w-full bg-gray-100 mt-2"></div>
+                    
+                    <div class="mt-8">
+                        <p class="text-sm font-medium text-muted mb-4 uppercase tracking-wider">Estimated Monthly Revenue</p>
+                        <div class="flex flex-wrap gap-3">
+                            <div class="selectable-pill" onclick="selectRevenue(this, '< 1L')">&lt; ₹1L</div>
+                            <div class="selectable-pill" onclick="selectRevenue(this, '1L - 5L')">₹1L - ₹5L</div>
+                            <div class="selectable-pill" onclick="selectRevenue(this, '5L - 10L')">₹5L - ₹10L</div>
+                            <div class="selectable-pill" onclick="selectRevenue(this, '> 10L')">&gt; ₹10L</div>
+                        </div>
+                        <input type="hidden" id="monthly-revenue">
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Categories -->
+            <div id="step-4" class="step-container step-hidden-right">
+                <h2 class="text-3xl sm:text-4xl font-bold text-text mb-3 tracking-tight">Select common categories.</h2>
+                <p class="text-lg text-muted mb-8">We've pre-selected a few based on your industry. Add or remove as needed.</p>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-premium border border-gray-100 mb-8">
+                    <div class="flex flex-wrap gap-3" id="categories-container">
+                        <div class="selectable-pill selected" onclick="toggleCategory(this)">Rent & Lease</div>
+                        <div class="selectable-pill selected" onclick="toggleCategory(this)">Salaries</div>
+                        <div class="selectable-pill selected" onclick="toggleCategory(this)">Inventory</div>
+                        <div class="selectable-pill selected" onclick="toggleCategory(this)">Utilities</div>
+                        <div class="selectable-pill" onclick="toggleCategory(this)">Marketing</div>
+                        <div class="selectable-pill" onclick="toggleCategory(this)">Software Subscriptions</div>
+                        <div class="selectable-pill" onclick="toggleCategory(this)">Travel</div>
+                        <div class="selectable-pill" onclick="toggleCategory(this)">Consulting Income</div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="custom-category" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary" placeholder="Add custom category...">
+                            <button onclick="addCustomCategory()" class="bg-gray-900 text-white px-5 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors whitespace-nowrap">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5: First Transaction -->
+            <div id="step-5" class="step-container step-hidden-right">
+                <h2 class="text-3xl sm:text-4xl font-bold text-text mb-3 tracking-tight">Record your first transaction.</h2>
+                <p class="text-lg text-muted mb-8">Log an initial income or expense to populate your dashboard.</p>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-premium border border-gray-100">
+                    
+                    <div class="flex bg-gray-100 p-1.5 rounded-xl mb-8">
+                        <button id="type-income" onclick="setTxType('income')" class="flex-1 py-3 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-900 transition-all">Income</button>
+                        <button id="type-expense" onclick="setTxType('expense')" class="flex-1 py-3 text-sm font-semibold rounded-lg bg-white shadow-sm text-text transition-all">Expense</button>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                                <input type="number" id="tx-amount" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-colors" placeholder="0.00" oninput="validateCurrentStep()">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select id="tx-category" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-secondary focus:bg-white transition-colors appearance-none cursor-pointer">
+                                <option value="" disabled selected>Select category</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINAL STEP -->
+            <div id="step-6" class="step-container step-hidden-right text-center">
+                <div class="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/30 transform transition-transform hover:scale-105">
+                    <i class="fas fa-check text-4xl text-white"></i>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4 tracking-tight">You're all set! 🎉</h1>
+                <p class="text-xl text-muted mb-12 max-w-lg mx-auto">Your business profile is fully configured. You're ready to take control of your finances.</p>
+                
+                <button onclick="completeOnboarding()" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary hover:bg-[#152c6b] text-white rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                    Go to Dashboard
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Navigation (Hidden on final step) -->
+    <footer id="nav-footer" class="w-full max-w-3xl mx-auto px-6 sm:px-10 pb-10 pt-4 z-20 flex justify-between items-center">
+        <button id="btn-back" onclick="prevStep()" class="flex items-center gap-2 text-muted hover:text-text font-medium px-4 py-2 transition-colors opacity-0 pointer-events-none">
+            <i class="fas fa-arrow-left text-sm"></i> Back
+        </button>
+        
+        <button id="btn-next" onclick="nextStep()" disabled class="flex items-center gap-2 px-8 py-3.5 bg-primary text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md disabled:hover:translate-y-0 hover:-translate-y-0.5">
+            Continue <i class="fas fa-arrow-right text-sm"></i>
+        </button>
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        // Auto-fill email from localStorage if available
+        document.addEventListener('DOMContentLoaded', () => {
+            const bizName = localStorage.getItem('businessName');
+            if(bizName) {
+                document.getElementById('business-name').value = bizName;
+            }
+            validateCurrentStep();
+        });
+
+        // Validation Logic
+        function validateCurrentStep() {
+            let isValid = false;
+            
+            if (currentStep === 1) {
+                isValid = document.getElementById('business-name').value.trim() !== '';
+            } else if (currentStep === 2) {
+                isValid = document.getElementById('business-type').value !== '';
+            } else if (currentStep === 3) {
+                isValid = document.getElementById('opening-balance').value !== '';
+            } else if (currentStep === 4) {
+                isValid = document.querySelectorAll('.selectable-pill.selected').length > 0;
+            } else if (currentStep === 5) {
+                isValid = document.getElementById('tx-amount').value !== '';
+            }
+
+            document.getElementById('btn-next').disabled = !isValid;
+        }
+
+        // Selection Logic
+        function selectType(element, type) {
+            document.querySelectorAll('.selectable-card').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('business-type').value = type;
+            validateCurrentStep();
+        }
+
+        function selectRevenue(element, range) {
+            document.querySelectorAll('.selectable-pill').forEach(el => {
+                if (el.parentElement.contains(element)) el.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById('monthly-revenue').value = range;
+        }
+
+        function toggleCategory(element) {
+            element.classList.toggle('selected');
+            updateTxCategories();
+            validateCurrentStep();
+        }
+
+        function addCustomCategory() {
+            const input = document.getElementById('custom-category');
+            const val = input.value.trim();
+            if (val) {
+                const container = document.getElementById('categories-container');
+                const pill = document.createElement('div');
+                pill.className = 'selectable-pill selected';
+                pill.textContent = val;
+                pill.onclick = function() { toggleCategory(this); };
+                container.appendChild(pill);
+                input.value = '';
+                updateTxCategories();
+                validateCurrentStep();
+            }
+        }
+
+        function updateTxCategories() {
+            const select = document.getElementById('tx-category');
+            const selected = document.querySelectorAll('#categories-container .selectable-pill.selected');
+            
+            select.innerHTML = '<option value="" disabled selected>Select category</option>';
+            selected.forEach(pill => {
+                const opt = document.createElement('option');
+                opt.value = pill.textContent;
+                opt.textContent = pill.textContent;
+                select.appendChild(opt);
+            });
+            
+            if (selected.length > 0) {
+                select.selectedIndex = 1; // Auto select first
+            }
+        }
+
+        function setTxType(type) {
+            const inc = document.getElementById('type-income');
+            const exp = document.getElementById('type-expense');
+            
+            if (type === 'income') {
+                inc.className = 'flex-1 py-3 text-sm font-semibold rounded-lg bg-white shadow-sm text-text transition-all';
+                exp.className = 'flex-1 py-3 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-900 transition-all';
+            } else {
+                exp.className = 'flex-1 py-3 text-sm font-semibold rounded-lg bg-white shadow-sm text-text transition-all';
+                inc.className = 'flex-1 py-3 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-900 transition-all';
+            }
+        }
+
+        // Navigation Logic
+        function showStep(step, direction) {
+            // Hide all
+            for (let i = 1; i <= 6; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (i === step) continue;
+                
+                if (el.classList.contains('step-active')) {
+                    el.classList.remove('step-active');
+                    el.classList.add(direction === 'next' ? 'step-hidden-left' : 'step-hidden-right');
+                } else {
+                    el.classList.remove('step-hidden-left', 'step-hidden-right');
+                    el.classList.add(direction === 'next' ? 'step-hidden-right' : 'step-hidden-left'); // Position for future
+                }
+            }
+
+            // Show target
+            const target = document.getElementById(`step-${step}`);
+            target.classList.remove('step-hidden-left', 'step-hidden-right');
+            
+            // Force reflow
+            void target.offsetWidth;
+            
+            target.classList.add('step-active');
+
+            // Focus first input if exists
+            setTimeout(() => {
+                const input = target.querySelector('input:not([type="hidden"])');
+                if(input && step !== 6) input.focus();
+            }, 100);
+
+            updateUI();
+        }
+
+        function updateUI() {
+            const btnBack = document.getElementById('btn-back');
+            const btnNext = document.getElementById('btn-next');
+            const footer = document.getElementById('nav-footer');
+            const headerInfo = document.querySelector('header > div:nth-child(2)');
+
+            if (currentStep === 6) {
+                footer.style.display = 'none';
+                headerInfo.style.opacity = '0';
+                return;
+            }
+
+            // Progress bar
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('current-step-display').textContent = currentStep;
+
+            // Back button
+            if (currentStep === 1) {
+                btnBack.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                btnBack.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            // Next button
+            if (currentStep === totalSteps) {
+                btnNext.innerHTML = 'Finish Setup <i class="fas fa-check text-sm"></i>';
+                btnNext.classList.replace('bg-primary', 'bg-emerald-500');
+            } else {
+                btnNext.innerHTML = 'Continue <i class="fas fa-arrow-right text-sm"></i>';
+                btnNext.classList.replace('bg-emerald-500', 'bg-primary');
+            }
+
+            validateCurrentStep();
+            
+            // Special update for categories to transaction step
+            if (currentStep === 5) {
+                updateTxCategories();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep <= totalSteps) {
+                currentStep++;
+                showStep(currentStep, 'next');
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep, 'prev');
+            }
+        }
+
+        // Enter key to submit step
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const nextBtn = document.getElementById('btn-next');
+                if (!nextBtn.disabled && currentStep <= totalSteps) {
+                    nextStep();
+                }
+            }
+        });
+
+        function completeOnboarding() {
+            localStorage.setItem('onboardingCompleted', 'true');
+            
+            const bizName = document.getElementById('business-name').value;
+            if (bizName) localStorage.setItem('businessName', bizName);
+            
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+
+</html>
