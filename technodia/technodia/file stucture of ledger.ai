@@ -1,0 +1,52 @@
+src/
+│
+├── assets/                # Images, icons, illustrations
+│
+├── components/            # Reusable UI components
+│   ├── ui/
+│   │   ├── Button.jsx
+│   │   ├── Input.jsx
+│   │   ├── Card.jsx
+│   │
+│   ├── auth/
+│   │   ├── AuthLayout.jsx   # Split screen layout
+│   │   ├── OTPInput.jsx
+│   │
+│   ├── onboarding/
+│   │   ├── Stepper.jsx
+│   │   ├── StepCard.jsx
+│
+│   ├── dashboard/
+│       ├── SummaryCard.jsx
+│       ├── TransactionList.jsx
+│
+├── pages/                 # Full pages (route-level)
+│   ├── Login.jsx
+│   ├── Signup.jsx
+│   ├── Onboarding.jsx
+│   ├── Dashboard.jsx
+│
+├── services/              # 🔥 All Firebase logic (VERY IMPORTANT)
+│   ├── authService.js     # login, signup, logout
+│   ├── userService.js     # user + onboarding data
+│   ├── transactionService.js
+│
+├── firebase/              # Firebase setup (clean separation)
+│   └── config.js          # initializeApp, auth, db
+│
+├── hooks/                 # Custom React hooks (optional but powerful)
+│   ├── useAuth.js
+│   ├── useUser.js
+│
+├── context/               # Global state (auth state)
+│   └── AuthContext.jsx
+│
+├── routes/                # Routing logic
+│   └── AppRoutes.jsx
+│
+├── utils/                 # Helpers
+│   ├── validators.js
+│   ├── formatters.js
+│
+├── App.jsx
+├── main.jsx
