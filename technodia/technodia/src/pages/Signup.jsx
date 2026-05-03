@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { loginUser } from '../utils/auth';
+import { signUp } from '../services/authService';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
@@ -37,20 +37,24 @@ const Signup = () => {
     }
   }, [formData.password, formData.confirm]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirm) return;
 
     setIsLoading(true);
 
-    // Simulate API Call
-    setTimeout(() => {
-      loginUser(formData.email, false); // false = onboarding not completed
-      localStorage.setItem('businessName', formData.businessName); // Save for onboarding
-      
-      setIsLoading(false);
+    try {
+      await signUp(formData.email, formData.password, formData.businessName);
+      // localStorage is no longer needed since it's stored in Firestore
+      // navigate is no longer strictly needed since AppRoutes auto-redirects on auth change
+      // but we can leave it to be safe
       navigate('/onboarding');
-    }, 1200);
+    } catch (err) {
+      console.error("Signup error:", err);
+      // In a real app, set error state here
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getStrengthBarColor = () => {
@@ -75,8 +79,8 @@ const Signup = () => {
           
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-16">
-              <div className="w-10 h-10 rounded-lg bg-white text-[var(--color-primary)] flex items-center justify-center font-bold text-2xl shadow-lg">F</div>
-              <span className="text-2xl font-bold tracking-tight">FlowAI</span>
+              <div className="w-10 h-10 rounded-lg bg-white text-[var(--color-primary)] flex items-center justify-center font-bold text-2xl shadow-lg">L</div>
+              <span className="text-2xl font-bold tracking-tight">Ledger AI</span>
             </div>
             <h1 className="text-[2.5rem] leading-[1.15] font-bold mb-6 tracking-tight">Start managing finances smartly</h1>
             <p className="text-blue-100/90 text-lg leading-relaxed mb-12 max-w-[90%]">

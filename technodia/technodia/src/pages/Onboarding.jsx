@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Store, Briefcase, Factory, Laptop, Utensils, Shapes, ArrowRight, ArrowLeft } from 'lucide-react';
-import { completeOnboarding } from '../utils/auth';
+import { saveOnboardingData } from '../services/userService';
 
-const Onboarding = () => {
+const Onboarding = ({ user }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -25,9 +25,12 @@ const Onboarding = () => {
 
   useEffect(() => {
     validateCurrentStep();
-    if (inputRef.current && currentStep !== 6) {
-      setTimeout(() => inputRef.current.focus(), 100);
-    }
+    const timer = setTimeout(() => {
+      if (inputRef.current && currentStep !== 6) {
+        inputRef.current.focus();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
   }, [currentStep, formData]);
 
   const validateCurrentStep = () => {
@@ -61,9 +64,15 @@ const Onboarding = () => {
     }
   };
 
-  const finishSetup = () => {
-    completeOnboarding(formData.businessName);
-    navigate('/dashboard');
+  const finishSetup = async () => {
+    if (!user) return;
+    try {
+      await saveOnboardingData(user.uid, formData);
+      // Hard refresh to reload auth state and user data from Firestore
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error("Failed to save onboarding data", err);
+    }
   };
 
   const toggleCategory = (cat) => {
@@ -96,7 +105,7 @@ const Onboarding = () => {
       {currentStep < 6 && (
         <header className="w-full max-w-3xl mx-auto pt-8 px-6 sm:px-10 z-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-lg shadow-sm">F</div>
+            <div className="w-8 h-8 rounded bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-lg shadow-sm">L</div>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-[var(--color-muted)]">Step {currentStep} of {totalSteps}</span>
@@ -113,7 +122,7 @@ const Onboarding = () => {
           {/* STEP 1 */}
           {currentStep === 1 && (
             <div className="absolute inset-0 animate-in fade-in slide-in-from-right-8 duration-500">
-              <h1 className="text-4xl sm:text-5xl font-bold text-[var(--color-text)] mb-4 tracking-tight">Welcome to FlowAI.</h1>
+              <h1 className="text-4xl sm:text-5xl font-bold text-[var(--color-text)] mb-4 tracking-tight">Welcome to Ledger AI.</h1>
               <p className="text-xl text-[var(--color-muted)] mb-12">To get started, what's your business called?</p>
               <input 
                 ref={inputRef}

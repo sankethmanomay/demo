@@ -1,14 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, User, Wallet, TrendingUp, Receipt, ArrowDown, ArrowUp } from 'lucide-react';
-import { logoutUser, getAuthState } from '../utils/auth';
+import { logOut } from '../services/authService';
 
-const Dashboard = () => {
+const Dashboard = ({ user, userData }) => {
   const navigate = useNavigate();
-  const { userEmail, businessName } = getAuthState();
+  const userEmail = user?.email;
+  const businessName = userData?.businessName;
 
-  const handleLogout = () => {
-    logoutUser();
+  const handleLogout = async () => {
+    await logOut();
     navigate('/');
   };
 
@@ -19,8 +20,8 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-lg shadow-md">F</div>
-              <span className="text-xl font-bold text-[var(--color-primary)] tracking-tight hidden sm:block">FlowAI</span>
+              <div className="w-8 h-8 rounded bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-lg shadow-md">L</div>
+              <span className="text-xl font-bold text-[var(--color-primary)] tracking-tight hidden sm:block">Ledger AI</span>
             </div>
 
             <div className="flex items-center gap-4">
